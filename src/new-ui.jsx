@@ -3,7 +3,7 @@ import { Card, Grid, Input, Menu, Button, Image, Header } from 'semantic-ui-reac
 import { TagInput } from 'evergreen-ui';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import styles from './styles.module.css';
 
 import LogView from './components/logs';
 import HelpTab from './components/help';
@@ -122,6 +122,7 @@ const App = memo(() => {
   }
 
   async function onStartPress({ dryRun = false }) {
+    setMenuItem(MENU_ITEMS.logs);
     if (running) {
       const result = await Swal.fire({
         title: 'Are you sure?',
@@ -293,16 +294,16 @@ const App = memo(() => {
       <Card centered fluid>
         <Card.Content header="Recent Stats" description="Stats for the past 24h" />
         <Card.Content centered>
-          {instautoData && !running && <RecentStatistics data={instautoData} />}
+          {instautoData && <RecentStatistics data={instautoData} />}
         </Card.Content>
       </Card>
       <Card centered fluid>
         <Card.Content header="Total Stats" description="Overall stats" />
         <Card.Content centered>
-          {instautoData && !running && <TotalStatistics data={instautoData} />}
+          {instautoData && <TotalStatistics data={instautoData} />}
         </Card.Content>
       </Card>
-      <LogView logs={logs} fontSize={13} style={{ height: '100%' }} />
+      <LogView logs={logs} fontSize={13} style={{ height: '100%' }} instautoData={instautoData} />
     </Grid.Column>
   );
 
@@ -322,16 +323,16 @@ const App = memo(() => {
     <div>
       <Menu fixed="left" color="purple" pointing secondary vertical style={{ width: '250px' }}>
         <Menu.Item>
-          <Header as="h2">
+          <Header as="h3">
             <Image circular src="https://react.semantic-ui.com/images/avatar/large/patrick.png" /> InstaBot
           </Header>
 
         </Menu.Item>
-        <Menu.Item content="Home" name={MENU_ITEMS.home} active={menuItemSelected === MENU_ITEMS.home} onClick={handleMenuClick} />
+        <Menu.Item disabled={running} content="Home" name={MENU_ITEMS.home} active={menuItemSelected === MENU_ITEMS.home} onClick={handleMenuClick} />
         <Menu.Item content="Logs & Stats" name={MENU_ITEMS.logs} active={menuItemSelected === MENU_ITEMS.logs} onClick={handleMenuClick} />
         <Menu.Item content="Help" name={MENU_ITEMS.help} active={menuItemSelected === MENU_ITEMS.help} onClick={handleMenuClick} />
       </Menu>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginLeft: '250px', position: 'sticky', top: 0, zIndex: '3', margin: '10px' }}>
+      <div className={styles.floatingHeader}>
         <Button basic color="purple" disabled={running} onClick={() => onStartPress({ dryRun: true })} content="Test Bot" />
         <Button color="purple" negative={running} onClick={onStartPress}>{running ? 'Stop bot' : 'Start bot'}</Button>
       </div>
@@ -344,7 +345,7 @@ const App = memo(() => {
             description="List of accounts whose followers the bot should follow. Choose accounts with a lot of followers (e.g influencers above 100k). The bot will then visit each of these and follow their most recent followers, in hope that they will follow you back. 5 days later, it will unfollow them. For best results, choose accounts from a niche market that you want to target."
           />
           <Card
-            color="green"
+            color="purple"
             header="Tip #1"
             description="To avoid temporary blocks, please run the bot on the same internet/WiFi as you normally use your Instagram app. Do not use a VPN."
           />
