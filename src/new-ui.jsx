@@ -1,7 +1,6 @@
 import React, { memo, useState, useEffect, useMemo, useCallback } from 'react';
 import get from 'lodash/get';
 import { Card, Grid, Menu, Button, Image, Header } from 'semantic-ui-react';
-import { TagInput } from 'evergreen-ui';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import styles from './styles.module.css';
@@ -14,6 +13,7 @@ import TotalStatistics from './components/total-statistics';
 import getProfilePicture from './services/image';
 import LoggedInCard from './components/logged-in-card';
 import LogInCard from './components/login-card';
+import AudienceCard from './components/audience-card';
 
 const electron = window.require('electron');
 // const isDev = window.require('electron-is-dev');
@@ -274,23 +274,11 @@ const App = memo(() => {
           onPasswordChange={e => setPassword(e.target.value)}
         />
       )}
-      <Card fluid>
-        <Card.Content header="2. Select Audience" />
-        <Card.Content>
-          <div style={{ width: '100%', margin: '10px 10px' }}>
-            Usernames of accounts whose followers bot should follow
-            <div style={{ margin: '20px 0' }}>
-              <TagInput
-                inputProps={{ placeholder: 'Influencers, celebrities, etc.' }}
-                style={{ border: fewUsersToFollowFollowersOf ? '1px solid orange' : undefined }}
-                values={usersToFollowFollowersOf}
-                onChange={onUsersToFollowFollowersOfChange}
-                separator={/[,\s]/}
-              />
-            </div>
-          </div>
-        </Card.Content>
-      </Card>
+      <AudienceCard
+        fewUsersToFollowFollowersOf={fewUsersToFollowFollowersOf}
+        usersToFollowFollowersOf={usersToFollowFollowersOf}
+        onUsersToFollowFollowersOfChange={onUsersToFollowFollowersOfChange}
+      />
       <Card fluid>
         <Card.Content header="3. Adjust Settings" />
         <Card.Content>
