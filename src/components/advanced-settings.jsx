@@ -6,20 +6,13 @@ const AdvancedSettings = memo(({
 }) => {
   const handleInputChange = (e, { value }) => changeSetting(e.target.name, value);
 
-  const additionalSettings = [
+  const generalActivityLimits = [
     {
       key: 'more',
-      title: 'More Settings',
+      title: 'General Activity Limits',
       content: {
         content: (
           <div>
-            <Message
-              size="tiny"
-              warning
-              visible
-              header="Note"
-              content="Setting too much likes or follows per hour/day will get you blocked."
-            />
             <Form.Input
               name="maxFollowsPerDay"
               label="Limit follow and unfollow operations over 24 hours"
@@ -44,6 +37,19 @@ const AdvancedSettings = memo(({
               value={advancedSettings.maxLikesPerUser}
               onChange={handleInputChange}
             />
+          </div>
+        ),
+      },
+    },
+  ];
+
+  const followingActivityLimits = [
+    {
+      key: 'more',
+      title: 'Following Activity Limits',
+      content: {
+        content: (
+          <div>
             <Form.Input
               name="followUserRatioMin"
               label="Skip users that have a followers/following ratio lower than this"
@@ -57,15 +63,15 @@ const AdvancedSettings = memo(({
               onChange={handleInputChange}
             />
             <Form.Input
-              name="followUserMaxFollowers"
-              label="Skip users who have more followers than this"
-              value={advancedSettings.followUserMaxFollowers}
-              onChange={handleInputChange}
-            />
-            <Form.Input
               name="followUserMinFollowers"
               label="Skip users who have less followers than this"
               value={advancedSettings.followUserMinFollowers}
+              onChange={handleInputChange}
+            />
+            <Form.Input
+              name="followUserMaxFollowers"
+              label="Skip users who have more followers than this"
+              value={advancedSettings.followUserMaxFollowers}
               onChange={handleInputChange}
             />
             <Form.Input
@@ -118,7 +124,9 @@ const AdvancedSettings = memo(({
         />
         )}
 
-        <Accordion as={Form.Field} panels={additionalSettings} />
+        <Accordion as={Form.Field} panels={generalActivityLimits} />
+
+        <Accordion as={Form.Field} panels={followingActivityLimits} />
       </Form>
     </>
   );
