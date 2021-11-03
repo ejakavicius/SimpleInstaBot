@@ -150,7 +150,6 @@ const App = memo(() => {
   }
 
   async function onStartPress({ dryRun = false }) {
-    setMenuItem(MENU_ITEMS.logs);
     if (running) {
       const result = await Swal.fire({
         title: 'Are you sure?',
@@ -207,6 +206,8 @@ const App = memo(() => {
         await initInstautoDb(username);
       }
       refreshInstautoData();
+
+      setMenuItem(MENU_ITEMS.logs);
 
       await initInstauto({
         ...advancedSettings,
@@ -327,7 +328,7 @@ const App = memo(() => {
 
   return (
     <div>
-      <Menu fixed="left" color="purple" pointing secondary vertical style={{ width: '250px' }}>
+      <Menu fixed="left" color="purple" pointing secondary vertical style={{ width: '250px', borderRightWidth: 1 }}>
         <Menu.Item style={{ height: '57px', borderBottomWidth: '1px', borderBottomColor: '#22242626', borderBottomStyle: 'solid' }}>
           <Header as="h3">
             <Image size="tiny" src="https://react.semantic-ui.com/images/avatar/large/patrick.png" /> InstaBot
@@ -350,7 +351,6 @@ const App = memo(() => {
             description="List of accounts whose followers the bot should follow. Choose accounts with a lot of followers (e.g influencers above 100k). The bot will then visit each of these and follow their most recent followers, in hope that they will follow you back. 5 days later, it will unfollow them. For best results, choose accounts from a niche market that you want to target."
           />
           <Card
-            color="purple"
             header="Tip #1"
             description="To avoid temporary blocks, please run the bot on the same internet/WiFi as you normally use your Instagram app. Do not use a VPN."
           />
