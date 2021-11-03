@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Accordion, Form, Message } from 'semantic-ui-react';
+import { Accordion, Form } from 'semantic-ui-react';
 
 const AdvancedSettings = memo(({
   advancedSettings, skipPrivate, setSkipPrivate, changeSetting, instantStart, setInstantStart,
