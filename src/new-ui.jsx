@@ -128,6 +128,12 @@ const App = memo(() => {
 
   const isLoggedIn = !!(currentUsername && haveCookies);
 
+  const credentialsSet = !!(username && password);
+
+  const disableTestBot = (!isLoggedIn && !credentialsSet) || running || usersToFollowFollowersOf.length < 1;
+
+  const disableStartBot = (!isLoggedIn && !credentialsSet) || fewUsersToFollowFollowersOf;
+
   useEffect(() => {
     (async () => {
       if (!isLoggedIn) return;
@@ -151,33 +157,11 @@ const App = memo(() => {
 
   async function onStartPress({ dryRun = false }) {
     if (running) {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'This will terminate the bot and you will lose any logs',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Stop the bot',
-        cancelButtonText: 'Leave it running',
-      });
-      if (result.value) electron.remote.app.quit();
+      await cleanupInstauto();
+      await refreshInstautoData();
+      setRunning(false);
       return;
     }
-
-    if (usersToFollowFollowersOf.length < 1) {
-      await Swal.fire({ icon: 'error', text: 'Please add at least 1 username to the list!' });
-      return;
-    }
-
-    if (!isLoggedIn && (username.length < 1 || password.length < 1)) {
-      await Swal.fire({ icon: 'error', text: 'Please enter your username and password' });
-      return;
-    }
-
-    if (fewUsersToFollowFollowersOf) {
-      const { value } = await Swal.fire({ icon: 'warning', text: 'We recommended to provide at least 5 users', showCancelButton: true, confirmButtonText: 'Run anyway' });
-      if (!value) return;
-    }
-
 
     setLogs([]);
     setRunning(true);
@@ -339,8 +323,8 @@ const App = memo(() => {
         <Menu.Item content="Help" name={MENU_ITEMS.help} active={menuItemSelected === MENU_ITEMS.help} onClick={handleMenuClick} />
       </Menu>
       <div className={styles.floatingHeader}>
-        <Button basic color="purple" disabled={running} onClick={() => onStartPress({ dryRun: true })} content="Test Bot" />
-        <Button color="purple" negative={running} onClick={onStartPress}>{running ? 'Stop bot' : 'Start bot'}</Button>
+        <Button disabled={disableTestBot} onClick={() => onStartPress({ dryRun: true })} content="Test Bot" basic color="purple" />
+        <Button disabled={disableStartBot} negative={running} content={running ? 'Stop bot' : 'Start bot'} onClick={onStartPress} color="purple" />
       </div>
       <Grid style={{ marginLeft: '250px', marginRight: '0px' }}>
         {MENU_CONTENT[menuItemSelected]()}
