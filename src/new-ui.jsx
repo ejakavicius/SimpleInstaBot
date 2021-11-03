@@ -1,5 +1,6 @@
 import React, { memo, useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, Grid, Input, Menu, Button, Image, Header } from 'semantic-ui-react';
+import get from 'lodash/get';
+import { Card, Grid, Menu, Button, Image, Header } from 'semantic-ui-react';
 import { TagInput } from 'evergreen-ui';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -10,12 +11,24 @@ import HelpTab from './components/help';
 import AdvancedSettings from './components/advanced-settings';
 import RecentStatistics from './components/recent-statistics';
 import TotalStatistics from './components/total-statistics';
+import getProfilePicture from './services/image';
+import LoggedInCard from './components/logged-in-card';
+import LogInCard from './components/login-card';
 
 const electron = window.require('electron');
 // const isDev = window.require('electron-is-dev');
 
 const { powerSaveBlocker } = electron.remote.require('electron');
-const { initInstautoDb, initInstauto, runBot, cleanupInstauto, checkHaveCookies, deleteCookies, getInstautoData } = electron.remote.require('./electron');
+const {
+  initInstautoDb,
+  initInstauto,
+  runBot,
+  cleanupInstauto,
+  checkHaveCookies,
+  deleteCookies,
+  getInstautoData,
+  getUserProfile,
+} = electron.remote.require('./electron');
 const { store: configStore } = electron.remote.require('./store');
 
 const ReactSwal = withReactContent(Swal);
@@ -38,6 +51,21 @@ const App = memo(() => {
   const [currentUsername, setCurrentUsername] = useState(configStore.get('currentUsername'));
   const [logs, setLogs] = useState([]);
   const [instautoData, setInstautoData] = useState();
+
+  const [userProfile, setUserProfile] = useState({
+    fullName: configStore.get('fullName'),
+    profilePicture: configStore.get('profilePicture'),
+    followersCount: configStore.get('followersCount'),
+    followCount: configStore.get('followCount'),
+    biography: configStore.get('biography'),
+  });
+
+  useEffect(() => configStore.set('fullName', userProfile.fullName), [userProfile.fullName]);
+  useEffect(() => configStore.set('profilePicture', userProfile.profilePicture), [userProfile.profilePicture]);
+  useEffect(() => configStore.set('followersCount', userProfile.followersCount), [userProfile.followersCount]);
+  useEffect(() => configStore.set('followCount', userProfile.followCount), [userProfile.followCount]);
+  useEffect(() => configStore.set('biography', userProfile.biography), [userProfile.biography]);
+
   const [advancedSettings, setAdvancedSettings] = useState({
     maxFollowsPerDay: configStore.get('maxFollowsPerDay'),
     maxFollowsPerHour: configStore.get('maxFollowsPerHour'),
@@ -193,6 +221,16 @@ const App = memo(() => {
         logger,
       });
 
+      const profile = await getUserProfile();
+      const profilePicture = await getProfilePicture(get(profile, 'profile_pic_url'));
+      setUserProfile({
+        fullName: get(profile, 'full_name'),
+        profilePicture,
+        followersCount: get(profile, 'edge_followed_by.count'),
+        followCount: get(profile, 'edge_follow.count'),
+        biography: get(profile, 'biography'),
+      });
+
       await runBot({
         usernames: usersToFollowFollowersOfCleaned,
         ageInDays: advancedSettings.dontUnfollowUntilDaysElapsed,
@@ -226,41 +264,21 @@ const App = memo(() => {
 
   const renderHome = () => (
     <Grid.Column floated="left" width={12}>
-      <Card fluid>
-        <Card.Content header="1. Instagram Account" description={currentUsername || undefined} />
-        <Card.Content>
-          {isLoggedIn ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ marginBottom: 20 }}>Your bot is logged in and ready to go!</div>
-              <Button onClick={onLogoutClick} content="Log Out" />
-            </div>
-          ) : (
-            <div>
-              <Input
-                isInvalid={username.length < 1}
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="Instagram username"
-                autoCapitalize="off"
-                autoCorrect="off"
-                spellCheck={false}
-              />
-              <Input
-                value={password}
-                isInvalid={password.length < 4}
-                onChange={e => setPassword(e.target.value)}
-                type="password"
-                placeholder="Password"
-                description="We do not store your password"
-              />
-            </div>
-          )}
-        </Card.Content>
-      </Card>
+      {isLoggedIn ? (
+        <LoggedInCard userProfile={userProfile} onLogoutClick={onLogoutClick} currentUsername={currentUsername} />
+      ) : (
+        <LogInCard
+          username={username}
+          password={password}
+          onUsernameChange={e => setUsername(e.target.value)}
+          onPasswordChange={e => setPassword(e.target.value)}
+        />
+      )}
       <Card fluid>
         <Card.Content header="2. Select Audience" />
         <Card.Content>
           <div style={{ width: '100%', margin: '10px 10px' }}>
+            Usernames of accounts whose followers bot should follow
             <div style={{ margin: '20px 0' }}>
               <TagInput
                 inputProps={{ placeholder: 'Influencers, celebrities, etc.' }}
@@ -322,13 +340,12 @@ const App = memo(() => {
   return (
     <div>
       <Menu fixed="left" color="purple" pointing secondary vertical style={{ width: '250px' }}>
-        <Menu.Item>
+        <Menu.Item style={{ height: '57px', borderBottomWidth: '1px', borderBottomColor: '#22242626', borderBottomStyle: 'solid' }}>
           <Header as="h3">
-            <Image circular src="https://react.semantic-ui.com/images/avatar/large/patrick.png" /> InstaBot
+            <Image size="tiny" src="https://react.semantic-ui.com/images/avatar/large/patrick.png" /> InstaBot
           </Header>
-
         </Menu.Item>
-        <Menu.Item disabled={running} content="Home" name={MENU_ITEMS.home} active={menuItemSelected === MENU_ITEMS.home} onClick={handleMenuClick} />
+        <Menu.Item style={{ marginTop: '20px' }} disabled={running} content="Home" name={MENU_ITEMS.home} active={menuItemSelected === MENU_ITEMS.home} onClick={handleMenuClick} />
         <Menu.Item content="Logs & Stats" name={MENU_ITEMS.logs} active={menuItemSelected === MENU_ITEMS.logs} onClick={handleMenuClick} />
         <Menu.Item content="Help" name={MENU_ITEMS.help} active={menuItemSelected === MENU_ITEMS.help} onClick={handleMenuClick} />
       </Menu>

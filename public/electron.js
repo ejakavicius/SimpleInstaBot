@@ -7,9 +7,9 @@ const { join } = require('path');
 const assert = require('assert');
 const fs = require('fs-extra');
 const filenamify = require('filenamify');
-
-const Instauto = require('instauto');
 const moment = require('moment');
+
+const Instauto = require('./instauto');
 
 
 function getFilePath(rel) {
@@ -209,6 +209,12 @@ async function runBot({
   }
 }
 
+async function getUserProfile() {
+  assert(instauto);
+
+  return instauto.getUserInfo();
+}
+
 
 function createWindow() {
   // Create the browser window.
@@ -271,4 +277,5 @@ module.exports = {
   cleanupInstauto,
   checkHaveCookies,
   deleteCookies,
+  getUserProfile,
 };

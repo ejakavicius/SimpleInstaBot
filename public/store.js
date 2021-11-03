@@ -17,6 +17,11 @@ const defaults = {
   followUserMinFollowing: 10,
   dontUnfollowUntilDaysElapsed: 5,
   runAtHour: 10,
+  fullName: undefined,
+  profilePicture: undefined,
+  followersCount: undefined,
+  followCount: undefined,
+  biography: undefined,
 };
 
 const store = new Store({
