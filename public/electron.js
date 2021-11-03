@@ -147,6 +147,14 @@ async function initInstauto({
   logger = loggerArg;
 }
 
+function stopBot() {
+  if (instautoWindow) {
+    instautoWindow.destroy();
+    instautoWindow = undefined;
+  }
+  mainWindow.reload();
+}
+
 function cleanupInstauto() {
   if (instautoWindow) {
     instautoWindow.destroy();
@@ -278,4 +286,5 @@ module.exports = {
   checkHaveCookies,
   deleteCookies,
   getUserProfile,
+  stopBot,
 };

@@ -28,6 +28,7 @@ const {
   deleteCookies,
   getInstautoData,
   getUserProfile,
+  stopBot,
 } = electron.remote.require('./electron');
 const { store: configStore } = electron.remote.require('./store');
 
@@ -157,9 +158,9 @@ const App = memo(() => {
 
   async function onStartPress({ dryRun = false }) {
     if (running) {
-      await cleanupInstauto();
-      await refreshInstautoData();
+      await updateCookiesState();
       setRunning(false);
+      await stopBot();
       return;
     }
 
