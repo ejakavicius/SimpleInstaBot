@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Container, Dropdown } from 'semantic-ui-react';
 
 const AudienceCard = ({ usersToFollowFollowersOf, onUsersToFollowFollowersOfChange }) => {
+  const [hasEnoughInput, setHasEnoughInput] = useState(true);
   const options = usersToFollowFollowersOf.map((el) => ({ key: el, text: el, value: el }));
-  const handleChange = (_, { value }) => onUsersToFollowFollowersOfChange(value);
+  const handleChange = (_, { value }) => {
+    setHasEnoughInput(value.length >= 5);
+    onUsersToFollowFollowersOfChange(value);
+  };
 
   return (
     <Card fluid>
@@ -13,6 +17,7 @@ const AudienceCard = ({ usersToFollowFollowersOf, onUsersToFollowFollowersOfChan
         Usernames of accounts whose followers bot should follow
         </Container>
         <Dropdown
+          error={!hasEnoughInput}
           options={options}
           value={usersToFollowFollowersOf}
           onChange={handleChange}
@@ -22,7 +27,7 @@ const AudienceCard = ({ usersToFollowFollowersOf, onUsersToFollowFollowersOfChan
           multiple
           allowAdditions
           style={{ minHeight: 76 }}
-          noResultsMessage="Add an account name e.g. @instagram"
+          noResultsMessage="Add at least five accounts e.g. @instagram"
           icon={null}
         />
       </Card.Content>
